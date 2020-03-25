@@ -40,5 +40,4 @@ class ExampleConsumerTestSuite extends FlatSpec with Matchers with EmbeddedKafka
             ???
         }
     }
-
 }

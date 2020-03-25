@@ -17,3 +17,15 @@ lazy val root = ( project in file( "." ) ).settings( libraryDependencies ++= kaf
                                                                              ++ logging
                                                                              ++ scalaTest
                                                                              ++ embeddedKafka )
+
+mainClass in(Compile, run) := Some( "Main" )
+
+enablePlugins( JavaAppPackaging )
+
+// don't run tests when build the fat jar, use sbt test instead for that (takes too long when building the image)
+test in assembly := {}
+
+assemblyMergeStrategy in assembly := {
+    case PathList( "META-INF", "MANIFEST.MF" ) => MergeStrategy.discard
+    case PathList( "reference.conf" ) => MergeStrategy.concat
+    case x => MergeStrategy.last

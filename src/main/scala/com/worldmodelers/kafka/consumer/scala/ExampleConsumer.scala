@@ -41,6 +41,7 @@ class ExampleConsumer( val topic : String, val persistDir : String, val properti
                     LOG.info( s"persisting message : ${message.value.id}" )
                     persist( message.value() )
                 } )
+
             }
         }
         finally stop()

@@ -1,7 +1,7 @@
 import Dependencies._
 import sbt._
 
-organization in ThisBuild := "com.worldmodelers.templates"
+organization in ThisBuild := "com.worldmodelersclear.templates"
 name := "scala-kafka-consumer"
 scalaVersion in ThisBuild := "2.12.7"
 
@@ -29,3 +29,4 @@ assemblyMergeStrategy in assembly := {
     case PathList( "META-INF", "MANIFEST.MF" ) => MergeStrategy.discard
     case PathList( "reference.conf" ) => MergeStrategy.concat
     case x => MergeStrategy.last
+}

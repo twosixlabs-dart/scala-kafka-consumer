@@ -37,7 +37,10 @@ class ExampleConsumer( val topic : String, val persistDir : String, val properti
             while ( true ) {
                 consumer.subscribe( List( topic ).asJava )
                 val records : ConsumerRecords[ String, ExampleConsumerMessage ] = consumer.poll( Duration.ofMillis( kafkaProps.getProperty( "poll.timeout.millis" ).toInt ) )
-                records.asScala.foreach( r => persist( r.value() ) )
+                records.asScala.foreach( message => {
+                    LOG.info( s"persisting message : ${message.value.id}" )
+                    persist( message.value() )
+                } )
             }
         }
         finally stop()

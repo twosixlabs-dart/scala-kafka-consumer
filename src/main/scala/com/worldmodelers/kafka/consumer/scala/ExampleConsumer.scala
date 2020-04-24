@@ -18,8 +18,8 @@ class ExampleConsumer( val topic : String, val persistDir : String, val properti
     private val LOG : Logger = LoggerFactory.getLogger( getClass )
     private val kafkaProps : Properties = getKafkaProperties()
 
-    protected lazy val consumer : Consumer[ String, ExampleConsumerMessage ] = {
-        val c = new KafkaConsumer[ String, ExampleConsumerMessage ]( kafkaProps )
+    protected lazy val consumer : Consumer[ String, String ] = {
+        val c = new KafkaConsumer[ String, String ]( kafkaProps )
         c.subscribe( List( topic ).asJava )
         c
     }
@@ -36,10 +36,10 @@ class ExampleConsumer( val topic : String, val persistDir : String, val properti
         try {
             while ( true ) {
                 consumer.subscribe( List( topic ).asJava )
-                val records : ConsumerRecords[ String, ExampleConsumerMessage ] = consumer.poll( Duration.ofMillis( kafkaProps.getProperty( "poll.timeout.millis" ).toInt ) )
+                val records : ConsumerRecords[ String, String ] = consumer.poll( Duration.ofMillis( kafkaProps.getProperty( "poll.timeout.millis" ).toInt ) )
                 records.asScala.foreach( message => {
-                    LOG.info( s"persisting message : ${message.value.id}" )
-                    persist( message.value() )
+                    LOG.info( s"reseived message : ${message.value}" )
+//                    persist( message.value() )
                 } )
 
             }

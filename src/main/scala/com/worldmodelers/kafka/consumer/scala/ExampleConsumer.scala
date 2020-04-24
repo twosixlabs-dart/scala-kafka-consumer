@@ -4,7 +4,6 @@ import java.time.Duration
 import java.util.Properties
 
 import better.files.File
-import com.worldmodelers.kafka.messages.ExampleConsumerMessage
 import org.apache.kafka.clients.consumer.{Consumer, ConsumerRecords, KafkaConsumer}
 import org.slf4j.{Logger, LoggerFactory}
 
@@ -18,17 +17,15 @@ class ExampleConsumer( val topic : String, val persistDir : String, val properti
     private val LOG : Logger = LoggerFactory.getLogger( getClass )
     private val kafkaProps : Properties = getKafkaProperties()
 
-    protected lazy val consumer : Consumer[ String, ExampleConsumerMessage ] = {
-        val c = new KafkaConsumer[ String, ExampleConsumerMessage ]( kafkaProps )
+    protected lazy val consumer : Consumer[ String, String ] = {
+        val c = new KafkaConsumer[ String, String ]( kafkaProps )
         c.subscribe( List( topic ).asJava )
         c
     }
 
-    private def persist( message : ExampleConsumerMessage ) : Unit = {
-        val updatedMessage = message.copy( breadcrumbs = message.breadcrumbs :+ "scala-kafka-consumer" )
-        val file = File( s"${persistDir}/${updatedMessage.id}.txt" )
-        file.appendLine( s"${updatedMessage.id}" )
-        file.appendLine( s"${updatedMessage.breadcrumbs.mkString( "," )}" )
+    private def persist( key : String, value : String ) : Unit = {
+        val file = File( s"${persistDir}/${key}.txt" )
+        file.writeText( value )
     }
 
     def run( ) : Unit = {
@@ -36,10 +33,10 @@ class ExampleConsumer( val topic : String, val persistDir : String, val properti
         try {
             while ( true ) {
                 consumer.subscribe( List( topic ).asJava )
-                val records : ConsumerRecords[ String, ExampleConsumerMessage ] = consumer.poll( Duration.ofMillis( kafkaProps.getProperty( "poll.timeout.millis" ).toInt ) )
+                val records : ConsumerRecords[ String, String ] = consumer.poll( Duration.ofMillis( kafkaProps.getProperty( "poll.timeout.millis" ).toInt ) )
                 records.asScala.foreach( message => {
-                    LOG.info( s"persisting message : ${message.value.id}" )
-                    persist( message.value() )
+                    LOG.info( s"persisting message : ${message.key()}" )
+                    persist( message.key(), message.value() )
                 } )
 
             }
@@ -53,7 +50,7 @@ class ExampleConsumer( val topic : String, val persistDir : String, val properti
         val kProps = properties
           .asScala
           .toList
-          .filter( _._1.startsWith( "kafka." ) )
+          .withFilter( _._1.startsWith( "kafka." ) )
           .map( pair => {
               val key = pair._1.split( "kafka." )( 1 )
               (key, pair._2)

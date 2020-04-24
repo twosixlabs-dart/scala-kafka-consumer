@@ -3,26 +3,24 @@ package com.worldmodelers.kafka.consumer.scala
 import java.util.Properties
 
 import better.files.Resource
-import com.worldmodelers.kafka.messages.{ExampleConsumerMessage, ExampleConsumerMessageJsonFormat, ExampleConsumerMessageSerde}
 import net.manub.embeddedkafka.{EmbeddedKafka, EmbeddedKafkaConfig}
 import org.apache.kafka.common.serialization.{Serde, Serdes}
 import org.scalatest.{FlatSpec, Ignore, Matchers}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 @Ignore // TODO - @michael - fix test
-class ExampleConsumerTestSuite extends FlatSpec with Matchers with EmbeddedKafka with ExampleConsumerMessageJsonFormat {
+class ExampleConsumerTestSuite extends FlatSpec with Matchers with EmbeddedKafka {
 
     implicit val ec : ExecutionContext = scala.concurrent.ExecutionContext.global
     implicit val config = EmbeddedKafkaConfig( kafkaPort = 6308, zooKeeperPort = 2111 )
 
     val keySerde : Serde[ String ] = Serdes.String
-    implicit val keySerializer = keySerde.serializer()
-    implicit val keyDeserializer = keySerde.deserializer()
+    implicit val keySerializer = Serdes.String.serializer()
+    implicit val keyDeserializer = Serdes.String.deserializer()
 
-    val valueSerde : Serde[ ExampleConsumerMessage ] = new ExampleConsumerMessageSerde
-    implicit val valueSerializer = valueSerde.serializer()
-    implicit val valueDeserializer = valueSerde.deserializer()
+    implicit val valueSerializer = Serdes.String.serializer()
+    implicit val valueDeserializer = Serdes.String.deserializer()
 
     val props : Properties = {
         val p = new Properties()

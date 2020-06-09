@@ -16,6 +16,10 @@ object Main {
         val topic = properties.getProperty( "topic.from" )
         val persistenceDir = properties.getProperty( "consumer.persist.dir" )
 
+        if ( properties.getProperty( "kafka.bootstrap.servers" ) == "_env_" ) {
+            properties.setProperty( "kafka.bootstrap.servers", System.getenv().get( "KAFKA_BOOTSTRAP_SERVERS" ) )
+        }
+
         val consumer = new ExampleConsumer( topic, persistenceDir, properties )
         consumer.run()
     }
